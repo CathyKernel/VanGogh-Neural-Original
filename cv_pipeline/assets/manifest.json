@@ -1,0 +1,88 @@
+{
+  "pipeline": "Van Gogh Neural offline CV pipeline",
+  "generated_utc": "2026-09-29T13:47:31Z",
+  "source_image": {
+    "file": "starry-night.jpg",
+    "width": 1280,
+    "height": 1014,
+    "note": "Vincent van Gogh, The Starry Night (1889), MoMA"
+  },
+  "models": {
+    "depth": "MiDaS v2.1 small (efficientnet_lite3 backbone, 256px lightweight)",
+    "flow": "RAFT-small (torchvision official implementation, C+T weights)",
+    "layers": "MobileSAM (vit_t TinyViT encoder, point-prompted)"
+  },
+  "depth": {
+    "files": [
+      "depth_midas_small.png",
+      "depth_midas_small_16bit.png",
+      "depth_stats.json"
+    ],
+    "convention": "grayscale value 255 = nearest (village band), 0 = farthest (moon/stars). Raw model output preserved, min-max normalized.",
+    "raw_range": [
+      231.84291076660156,
+      855.7645263671875
+    ]
+  },
+  "flow": {
+    "files": [
+      "flow_raft_small.flo",
+      "flow_raft_rgb.png",
+      "flow_raft_visualization.png",
+      "flow_stats.json"
+    ],
+    "method": "RAFT flow between the original painting and a synthetic next frame warped by vortex displacement fields centered on auto-detected luminous elements (moon + stars)",
+    "raft_input": {
+      "width": 960,
+      "height": 760,
+      "num_flow_updates": 12
+    },
+    "encoding": {
+      "flo": "Middlebury float32, u then v per pixel, full 1280x1014",
+      "rgb_png": "R = u/(32)+0.5, G = v/(32)+0.5, B = |f|/16; value 128 = zero flow, clamped",
+      "scale_px": 16.0
+    },
+    "flow_stats": {
+      "mean_magnitude_px": 1.102,
+      "max_magnitude_px": 12.163,
+      "pct_pixels_above_1px": 22.2
+    }
+  },
+  "layers": {
+    "files": [
+      "layer_0_sky.png",
+      "layer_1_moon.png",
+      "layer_2_stars.png",
+      "layer_3_cypress.png",
+      "layer_4_village.png",
+      "layer_5_mountains.png",
+      "layers_meta.json",
+      "layers_preview.png"
+    ],
+    "priority": [
+      "moon",
+      "stars",
+      "cypress",
+      "village",
+      "mountains"
+    ],
+    "sky": "complement of all other layers (masks partition the image, sum = 100%)",
+    "prompt_scores": {
+      "moon": 0.85,
+      "stars": NaN,
+      "cypress": 0.966,
+      "village": 0.724,
+      "mountains": 0.884
+    }
+  },
+  "web_demo": {
+    "entry": "main.js",
+    "consumes": {
+      "depth": "uDepth -> pointer parallax + slow auto-drift, strength uParallax=0.045",
+      "flow": "uFlow (flow_raft_rgb.png) -> time-modulated swirl advection, decode flow_px = (texel.rg - 0.5) * 32.0, gain uFlowAmp=2.2",
+      "layers": "six mask textures -> per-layer motion amplitude {sky:1.0, moon:0.30, stars:0.45, cypress:0.70, village:0.22, mountains:0.40} + star twinkle"
+    },
+    "fallback": "if any asset fails to load, main.js degrades to the original wave shader (the page never breaks)"
+  },
+  "regeneration": "see cv_pipeline/scripts/*.py (paths are machine-local; adapt SRC/OUT_DIR if re-running)"
+}
