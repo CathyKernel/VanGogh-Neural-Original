@@ -7,21 +7,25 @@ ready to deploy on Netlify as-is.
 
 ## What You See
 
+The **entire painting moves** — every region has its own animated motion:
+
+- **Sky**: RAFT-flow-driven swirls (the famous double vortex + the great wave
+  current) flowing back and forth, strongest in the sky, with the moon glow
+  gently breathing and the stars twinkling
+- **Cypress**: sways with a pivot at its base, the crown moving the most
+- **Village**: slow lateral drift with warm window-light flicker
+- **Mountains**: gentle lateral drift, out of phase with the village
 - **Depth parallax**: moving the pointer displaces scene regions according to the
-  MiDaS depth map (strongest in the village band, weakest for celestial bodies)
-- **Flow swirls**: the RAFT optical-flow field drives a reciprocating swirl of the
-  night sky, with a dual-frequency temporal pulse
-- **Layered motion**: the six SAM segmentation layers (sky / moon / stars / cypress /
-  village / mountains) control per-region motion amplitude, with a subtle twinkle
-  added to the star layer
-- **Aspect-correct letterbox**: the painting is never stretched or cropped — the full
-  artwork stays visible with black bars filling the remaining viewport
-- **Graceful fallback**: if any asset fails to load, main.js switches to a procedural
-  swirl that is still clearly animated and aspect-correct — the page never degrades
-  to a static, distorted image
+  MiDaS depth map (strongest in the village band)
+- **No lockstep**: each layer pulses with its own temporal phase, and a
+  procedural wave is blended over the neural flow so the whole canvas keeps
+  breathing everywhere
+- **Aspect-correct letterbox**: the painting is never stretched or cropped — the
+  full artwork stays visible with black bars filling the remaining viewport
+- **Graceful fallback**: if any asset fails to load, main.js switches to a
+  procedural swirl that is still clearly animated and aspect-correct
 - **Status badge**: a small self-fading badge at the bottom-left shows whether the
-  neural pipeline is active (green) or missing (orange), which makes deployment
-  problems obvious at a glance
+  neural pipeline is active (green) or missing (orange)
 
 ## Repository Layout
 
@@ -33,7 +37,7 @@ netlify.toml                # static deploy config (publish = ".")
 cv_pipeline/
   scripts/                  # offline generation scripts (documentation only,
     gen_depth.py            #   paths are machine-local)
-    gen_flow.py            #   RAFT-small optical flow (swirl frame-pair method)
+    gen_flow.py            #   RAFT-small optical flow (region-weighted field)
     gen_layers.py          #   MobileSAM point-prompted layer masks
   assets/
     manifest.json           # master asset manifest (models / encodings / stats)
@@ -49,7 +53,8 @@ cv_pipeline/
 - **flow_raft_small.flo**: standard Middlebury format (float32, u then v per pixel),
   full 1280x1014 resolution
 - **flow_raft_rgb.png**: GPU-texture-ready encoding, `flow_px = (texel.rg - 0.5) * 32.0`
-  (128 = zero flow, B channel = |f| / 16)
+  (128 = zero flow, B channel = |f| / 16). The v4 field moves 97.8% of all pixels
+  (mean 5.5 px): sky ~7 px, cypress / village / mountains ~3 px each
 - **layer_0..5_*.png**: mutually exclusive binary masks (255 = pixel belongs to the
   layer); the six layers partition the image exactly
 
@@ -84,11 +89,12 @@ cv_pipeline/
   not make it into the repository (the most common cause is uploading the files
   as a zip, or skipping the nested folders in the GitHub web uploader). Re-upload
   the `cv_pipeline/` folder, commit, and Netlify will redeploy automatically.
-  The page keeps working in the meantime via the procedural fallback.
-- **Stretched / cropped image** — fixed by design: the demo now letterboxes the
+- **Only one region moving** — fixed in v4: the flow field now covers the whole
+  canvas (97.8% of pixels), the per-layer amplitude suppression was removed, and
+  a procedural wave is blended over the neural flow. If you still see a single
+  moving spot, your deploy is running an old `main.js` or an old
+  `flow_raft_rgb.png` — re-upload both.
+- **Stretched / cropped image** — fixed by design: the demo letterboxes the
   painting so it is always fully visible and undistorted on any screen.
-- **No animation visible** — both modes animate continuously; if the page is
-  truly static, open the browser console — `window.__vanGoghStatus` reports the
-  active mode and any missing files.
 - **404 on the site root** — `index.html` is not at the repository root (see the
   deployment checklist above).
