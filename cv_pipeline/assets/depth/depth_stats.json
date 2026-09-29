@@ -1,0 +1,13 @@
+{
+  "model": "MiDaS v2.1 small (efficientnet_lite3 backbone, lightweight 256px)",
+  "checkpoint": "midas_v21_small.pt (v2_1 release)",
+  "source": {
+    "width": 1280,
+    "height": 1014
+  },
+  "convention": "larger value = nearer to camera (relative inverse depth); the model treats the village band as nearest and the moon/stars as farthest",
+  "raw_min": 228.80638122558594,
+  "raw_max": 858.7138671875,
+  "raw_mean": 476.40423583984375,
+  "seconds": 9.0
+}
