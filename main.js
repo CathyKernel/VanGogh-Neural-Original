@@ -1,0 +1,7 @@
+const c=document.getElementById('c'),x=c.getContext('webgl');function resize(){c.width=innerWidth;c.height=innerHeight}resize();onresize=resize;
+let vs=`attribute vec2 p;varying vec2 u;void main(){u=p*.5+.5;gl_Position=vec4(p,0,1);}`;
+let fs=`precision mediump float;uniform sampler2D t;uniform float time;varying vec2 u;void main(){vec2 q=u;q.x+=sin(q.y*18.0+time)*.002;q.y+=sin(q.x*12.0+time*.7)*.002;vec4 c=texture2D(t,q);gl_FragColor=vec4(c.rgb*(.98+.02*sin(time)),1.);}`;
+function sh(t,s){let a=x.createShader(t);x.shaderSource(a,s);x.compileShader(a);return a}
+let p=x.createProgram();x.attachShader(p,sh(x.VERTEX_SHADER,vs));x.attachShader(p,sh(x.FRAGMENT_SHADER,fs));x.linkProgram(p);x.useProgram(p);
+let b=x.createBuffer();x.bindBuffer(x.ARRAY_BUFFER,b);x.bufferData(x.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),x.STATIC_DRAW);let loc=x.getAttribLocation(p,'p');x.enableVertexAttribArray(loc);x.vertexAttribPointer(loc,2,x.FLOAT,false,0,0);
+let im=new Image();im.src="assets/starry-night.jpg";im.onload=()=>{let tx=x.createTexture();x.bindTexture(x.TEXTURE_2D,tx);x.texParameteri(x.TEXTURE_2D,x.TEXTURE_MIN_FILTER,x.LINEAR);x.texImage2D(x.TEXTURE_2D,0,x.RGB,x.RGB,x.UNSIGNED_BYTE,im);let tl=x.getUniformLocation(p,"t"),tm=x.getUniformLocation(p,"time");function f(t){x.uniform1f(tm,t/1000);x.drawArrays(x.TRIANGLE_STRIP,0,4);requestAnimationFrame(f)}f(0)};
