@@ -1,5 +1,21 @@
 # Van Gogh Starry Night Demo 1
 
+## What's new in this build
+
+* **Grab bug fixed** — dragging no longer translates the whole painting as a
+  flat image ( and no longer moved *against* the cursor ). The grab offset now
+  drives **depth parallax**: the cypress, moon and stars glide with your hand
+  while the far sky holds still, then the scene springs gently back home on
+  release. Both render modes sample the base painting with a per-pixel depth
+  offset, so the 2.5D feel is continuous everywhere.
+* **Livelier animation** — stronger RAFT-flow advection with a wider pulse
+  swing, breathing and gently wiggling dabs, livelier warp oscillation, and
+  higher default flow / stroke-motion / speed / auto-pan values.
+* **Prettier brush strokes** — almond-tapered impasto dabs with organic
+  bristle bands, a warm motion-synced impasto ridge, darkened lower edges,
+  and stroke data that now fades in and lifts off at the ends with
+  per-stroke thickness jitter and denser seeding.
+
 **SAM → depth → RAFT flow → GLSL**: a complete computer-vision pipeline that turns
 *The Starry Night* into a living painting while **preserving Van Gogh's original
 brush strokes and colours**. Every pixel colour in the final render is sampled
@@ -142,7 +158,8 @@ Two render modes over the same asset bundle ( toggle in the UI or press `1` / `2
   `renderer/shaders/depth_parallax.frag` ( `optical_flow.frag` provides the
   motion library, `common.glsl` the shared noise / flow-decode helpers ).
 
-Controls: drag = pan · wheel = zoom · mouse-move = micro parallax ·
+Controls: drag = depth parallax ( near layers glide, the sky holds; springs
+back on release ) · wheel = zoom · mouse-move = micro parallax ·
 sliders for parallax / flow strength / stroke motion / speed / brush size /
 auto-pan · `space` pause · `r` reset · `s` save PNG · `h` hide panel.
 Scene switcher in the top bar. WebGL2 is required; otherwise the page falls
