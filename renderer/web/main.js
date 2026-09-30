@@ -25,6 +25,14 @@
   const $ = (id) => document.getElementById(id);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const lerp = (a, b, t) => a + (b - a) * t;
+  const clampVec = (v, max) => {
+    const len = Math.hypot(v[0], v[1]);
+    return len > max && len > 1e-6 ? [v[0] * max / len, v[1] * max / len] : [v[0], v[1]];
+  };
+
+  // Parallax budget: the grab offset may displace near layers by at most this
+  // fraction of the painting's long side ( keeps the composition intact ).
+  const PARALLAX_MAX_FRAC = 0.07;
 
   const state = {
     scene: null,
@@ -35,16 +43,19 @@
     wallClock: 0,
     brushAlpha: 0,                 // fade-in for the stroke pass
     params: {
-      parallax: 1.0,
-      flow: 0.9,
-      stroke: 1.0,
-      speed: 1.0,
+      parallax: 1.15,
+      flow: 1.25,
+      stroke: 1.30,
+      speed: 1.15,
       brush: 1.0,
-      autoPan: 0.6,
+      autoPan: 0.90,
     },
     camera: {
-      pan: [0, 0], targetPan: [0, 0],      // px, auto-pan + user drag combined
-      drag: [0, 0], dragStart: null,
+      // "pan" is a pure *parallax* vector ( painting px ): near layers follow
+      // it fully, the far sky barely moves - it never translates the whole
+      // image as one flat sheet ( that was the grab bug ).
+      pan: [0, 0], targetPan: [0, 0],
+      drag: [0, 0], dragStart: null,       // grab offset, springs home on release
       zoom: 1.0, targetZoom: 1.0,
       pointer: [0, 0],                     // normalized -0.5..0.5
     },
@@ -310,7 +321,9 @@
     const H = assets.manifest.height;
     const fit = Math.min(cw / W, ch / H) * 0.9 * state.camera.zoom;
     view.scale = [2 * fit / cw, 2 * fit / ch];
-    view.center = [W / 2 - state.camera.pan[0], H / 2 - state.camera.pan[1]];
+    // the camera itself never translates: dragging drives per-layer /
+    // per-pixel depth parallax instead ( fixed: whole-image grab bug )
+    view.center = [W / 2, H / 2];
   }
 
   function resize() {
@@ -327,14 +340,19 @@
   // ---------------------------------------------------------------------------
   // draw passes
   // ---------------------------------------------------------------------------
-  function drawFlatQuad(tex, dim, time) {
+  function drawFlatQuad(tex, depthTex, dim, time) {
     gl.useProgram(progFlat);
     gl.bindVertexArray(quadVAO);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.uniform1i(uFlat.uTex, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, depthTex);
+    gl.uniform1i(uFlat.uDepth, 1);
     gl.uniform1f(uFlat.uDim, dim);
     gl.uniform1f(uFlat.uTime, time);
+    gl.uniform2f(uFlat.uPan, state.camera.pan[0], state.camera.pan[1]);
+    gl.uniform1f(uFlat.uParallax, state.params.parallax);
     gl.uniform2f(uFlat.uCameraCenter, view.center[0], view.center[1]);
     gl.uniform2f(uFlat.uScale, view.scale[0], view.scale[1]);
     gl.uniform2f(uFlat.uImageSize, assets.manifest.width, assets.manifest.height);
@@ -368,9 +386,9 @@
       }
     }
     gl.uniform1i(uWarp.uLayerCount, count);
-    gl.uniform2f(uWarp.uPan, state.camera.pan[0] * 0.25, state.camera.pan[1] * 0.25);
+    gl.uniform2f(uWarp.uPan, state.camera.pan[0], state.camera.pan[1]);
     gl.uniform1f(uWarp.uParallax, state.params.parallax);
-    gl.uniform1f(uWarp.uFlowStrength, state.params.flow * 0.55);
+    gl.uniform1f(uWarp.uFlowStrength, state.params.flow * 0.85);
     gl.uniform1f(uWarp.uTime, time);
     gl.uniform1f(uWarp.uFlowScale, assets.manifest.flow.scale || 1);
     gl.uniform2f(uWarp.uImageSize, assets.manifest.width, assets.manifest.height);
@@ -389,13 +407,14 @@
     gl.uniform2f(uBrush.uImageSize, assets.manifest.width, assets.manifest.height);
     gl.uniform2f(uBrush.uCameraCenter, view.center[0], view.center[1]);
     gl.uniform2f(uBrush.uScale, view.scale[0], view.scale[1]);
-    gl.uniform2f(uBrush.uPan, state.camera.pan[0] * 0.25, state.camera.pan[1] * 0.25);
+    gl.uniform2f(uBrush.uPan, state.camera.pan[0], state.camera.pan[1]);
     gl.uniform1f(uBrush.uParallax, state.params.parallax);
     gl.uniform1f(uBrush.uStrokeMotion, state.params.stroke);
     gl.uniform1f(uBrush.uTime, time);
     gl.uniform1f(uBrush.uTimeScale, state.params.speed);
     gl.uniform1f(uBrush.uFlowScale, assets.manifest.flow.scale || 1);
-    gl.uniform1f(uBrush.uBrushScale, state.params.brush);
+    // dabs grow in slightly as the stroke pass fades in ( paint arriving )
+    gl.uniform1f(uBrush.uBrushScale, state.params.brush * (0.80 + 0.20 * state.brushAlpha));
     gl.uniform1f(uBrush.uGlobalAlpha, state.brushAlpha);
     for (let i = 0; i < 6; i++) {
       const dloc = gl.getUniformLocation(progBrush, `uLayerDepth[${i}]`);
@@ -413,7 +432,7 @@
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     if (state.mode === "brush") {
-      drawFlatQuad(assets.original, 0.42, nowSec);
+      drawFlatQuad(assets.original, assets.depth, 0.48, nowSec);
       drawBrush(nowSec);
     } else {
       drawWarp(nowSec);
@@ -438,17 +457,27 @@
 
     if (!state.paused) {
       state.time += dt * state.params.speed;
-      state.brushAlpha = Math.min(1, state.brushAlpha + dt * 1.8);
+      state.brushAlpha = Math.min(1, state.brushAlpha + dt * 2.4);
     }
 
-    // auto-pan + pointer + drag spring
+    // ---- living-parallax camera ------------------------------------------
+    // auto-pan, pointer follow and the grab offset all feed ONE parallax
+    // vector: near layers ( tree, moon, stars ) glide with it, the far sky
+    // barely moves.  There is deliberately NO rigid camera translation -
+    // that was the "whole image moves when I grab it" bug.
     const m = assets.manifest ? Math.max(assets.manifest.width, assets.manifest.height) : 768;
-    const amp = 0.05 * m * state.params.autoPan;
-    const t = state.time * 0.35;
+    const parallaxMax = PARALLAX_MAX_FRAC * m;
+    if (!state.camera.dragStart && (state.camera.drag[0] || state.camera.drag[1])) {
+      // released: lazy spring back to the home composition
+      const decay = Math.exp(-dt * 0.55);
+      state.camera.drag = [state.camera.drag[0] * decay, state.camera.drag[1] * decay];
+    }
+    const amp = 0.065 * m * state.params.autoPan;
+    const t = state.time * 0.42;
     const auto = [Math.sin(t * 0.9) * amp, Math.sin(t * 0.7 + 1.6) * amp * 0.7];
-    const pointer = [state.camera.pointer[0] * m * 0.03, state.camera.pointer[1] * m * 0.03];
-    state.camera.targetPan = [auto[0] + pointer[0] + state.camera.drag[0],
-                              auto[1] + pointer[1] + state.camera.drag[1]];
+    const pointer = [state.camera.pointer[0] * m * 0.05, state.camera.pointer[1] * m * 0.05];
+    state.camera.targetPan = clampVec([auto[0] + pointer[0] + state.camera.drag[0],
+                                       auto[1] + pointer[1] + state.camera.drag[1]], parallaxMax);
     state.camera.pan = [
       lerp(state.camera.pan[0], state.camera.targetPan[0], 1 - Math.pow(0.001, dt)),
       lerp(state.camera.pan[1], state.camera.targetPan[1], 1 - Math.pow(0.001, dt)),
@@ -496,6 +525,8 @@
     });
     $("reset").addEventListener("click", () => {
       state.camera.drag = [0, 0];
+      state.camera.pan = [0, 0];
+      state.camera.targetPan = [0, 0];
       state.camera.targetZoom = state.camera.zoom = 1;
       state.time = 0;
     });
@@ -513,8 +544,12 @@
         const dx = e.clientX - state.camera.dragStart[0];
         const dy = e.clientY - state.camera.dragStart[1];
         const m = Math.max(assets.manifest.width, assets.manifest.height);
-        state.camera.drag = [state.camera.dragBase[0] - dx * m / 900,
-                             state.camera.dragBase[1] - dy * m / 900];
+        // content FOLLOWS the cursor ( the old sign was inverted ) and the
+        // offset feeds the depth-parallax vector, clamped to keep the frame
+        const k = m / 620;
+        state.camera.drag = clampVec([state.camera.dragBase[0] + dx * k,
+                                      state.camera.dragBase[1] + dy * k],
+                                     PARALLAX_MAX_FRAC * m);
       }
     });
     canvas.addEventListener("pointerdown", (e) => {
@@ -537,6 +572,7 @@
     }, { passive: false });
     canvas.addEventListener("dblclick", () => {
       state.camera.drag = [0, 0];
+      state.camera.targetPan = [0, 0];
       state.camera.targetZoom = 1;
     });
 
@@ -612,7 +648,8 @@
       progFlat = link(flatVs, flatFs, "flat");
       progWarp = link(warpVs, warpFs, "warp");
       progBrush = link(brushVs, brushFs, "brush");
-      uFlat = uniforms(progFlat, ["uTex", "uDim", "uTime", "uCameraCenter", "uScale", "uImageSize"]);
+      uFlat = uniforms(progFlat, ["uTex", "uDepth", "uDim", "uTime", "uPan", "uParallax",
+                                  "uCameraCenter", "uScale", "uImageSize"]);
       uWarp = uniforms(progWarp, ["uOriginal", "uDepth", "uFlow", "uLayerCount", "uPan",
                                   "uParallax", "uFlowStrength", "uTime", "uFlowScale", "uImageSize",
                                   "uCameraCenter", "uScale"]);

@@ -3,7 +3,7 @@
   "title": "Starry Night Synthetic",
   "width": 608,
   "height": 760,
-  "generated": "2026-09-30T02:09:57+00:00",
+  "generated": "2026-09-30T05:16:11+00:00",
   "models": {
     "sam": "sam_vit_b",
     "depth": "midas_small",
@@ -112,15 +112,15 @@
   },
   "strokes": {
     "bin": "strokes.bin",
-    "count": 49272,
+    "count": 49364,
     "strideFloats": 12,
     "radiusRange": [
-      2.96875,
-      29.6875
+      2.624199151992798,
+      29.47058868408203
     ],
     "lengthRange": [
-      3.2327682971954346,
-      31.171886444091797
+      3.043299436569214,
+      31.05258560180664
     ],
     "layers": [
       "sky",

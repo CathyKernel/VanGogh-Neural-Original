@@ -3,7 +3,7 @@
   "title": "Starry Night",
   "width": 768,
   "height": 480,
-  "generated": "2026-09-30T02:08:00+00:00",
+  "generated": "2026-09-30T05:16:08+00:00",
   "models": {
     "sam": "sam_vit_b",
     "depth": "midas_small",
@@ -100,15 +100,15 @@
   },
   "strokes": {
     "bin": "strokes.bin",
-    "count": 48478,
+    "count": 48489,
     "strideFloats": 12,
     "radiusRange": [
-      3.0,
-      30.0
+      2.6408820152282715,
+      33.55188751220703
     ],
     "lengthRange": [
-      3.249951124191284,
-      31.500049591064453
+      3.0524561405181885,
+      33.45356369018555
     ],
     "layers": [
       "sky",

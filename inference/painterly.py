@@ -28,6 +28,7 @@ The grouping MUST match the attribute declaration order in
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -87,7 +88,9 @@ def _grow_chain(seed: Tuple[float, float], dir0: np.ndarray, mask: np.ndarray,
     """Grow a curved stroke both ways from the seed along iso-contours."""
     h, w = mask.shape
     step = max(radius * 0.5, 1.6)
-    max_steps = int(np.clip(radius * 7.0 / step, 3, 14))
+    # longer chains than the original: sweeping curved strokes read far more
+    # Van Gogh than short dabs, and the shader tapers their ends gracefully
+    max_steps = int(np.clip(radius * 8.0 / step, 4, 18))
 
     def inside(p: Tuple[float, float]) -> bool:
         # floor semantics: fractional-negative coordinates are OUT of bounds
@@ -166,7 +169,7 @@ def generate_stroke_segments(image_rgb: np.ndarray, layer_masks: Dict[str, np.nd
             color_blur = cv2.GaussianBlur(rgb01, (0, 0), max(sigma * 0.8, 0.6))
             gx, gy = _field_gradient(lum_blur)
 
-            spacing = max(radius * 1.45, 2.0)
+            spacing = max(radius * 1.35, 2.0)   # denser seed grid -> lusher paint
             nx = int(np.ceil(w / spacing))
             ny = int(np.ceil(h / spacing))
             jitter_x = rng.uniform(0, spacing, size=(ny + 1, nx + 1))
@@ -189,11 +192,15 @@ def generate_stroke_segments(image_rgb: np.ndarray, layer_masks: Dict[str, np.nd
                     if len(chain) < 2:
                         continue
 
-                    base_opacity = float(rng.uniform(0.82, 0.95))
+                    base_opacity = float(rng.uniform(0.78, 0.92))
                     phase = float(rng.uniform(0, 2 * np.pi))
                     color_jitter = float(rng.uniform(-0.04, 0.04))
+                    # per-stroke thickness jitter: no two dabs are identical,
+                    # the paint surface gains organic variety
+                    radius_eff = float(radius) * (0.88 + 0.24 * float(rng.random()))
+                    n_links = len(chain) - 1
 
-                    for p0, p1 in zip(chain[:-1], chain[1:]):
+                    for k, (p0, p1) in enumerate(zip(chain[:-1], chain[1:])):
                         cx = (p0[0] + p1[0]) * 0.5
                         cy = (p0[1] + p1[1]) * 0.5
                         cx = float(np.clip(cx, 0.0, w - 1.0))   # keep the bin clean
@@ -207,10 +214,13 @@ def generate_stroke_segments(image_rgb: np.ndarray, layer_masks: Dict[str, np.nd
                         cyi = int(np.clip(round(cy), 0, h - 1))
                         color = color_blur[cyi, cxi]
                         color = np.clip(color * (1.0 + color_jitter), 0.0, 1.0)
-                        seg_len = dlen + radius * 0.55  # overlap for continuity
+                        seg_len = dlen + radius_eff * 0.55  # overlap for continuity
+                        # opacity envelope along the chain: strokes land softly
+                        # and lift off at the ends instead of stopping dead
+                        env = 0.62 + 0.38 * math.sin(math.pi * (k + 0.5) / max(n_links, 1))
                         segments.append([
                             float(cx), float(cy), float(dvec[0]), float(dvec[1]),
-                            float(seg_len), float(radius), base_opacity, float(layer_idx),
+                            float(seg_len), radius_eff, base_opacity * env, float(layer_idx),
                             float(color[0]), float(color[1]), float(color[2]),
                             phase,
                         ])

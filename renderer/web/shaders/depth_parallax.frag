@@ -37,21 +37,29 @@ uniform float uFlowScale;      // px, from manifest.flow.scale
 uniform vec2  uImageSize;      // px
 
 // composite one layer; sampler passed as a macro argument because GLSL ES
-// preprocessors vary in ## token-pasting support ( ANGLE rejects it )
+// preprocessors vary in ## token-pasting support ( ANGLE rejects it ).
+// Sampling at vUv - off makes the layer content FOLLOW the parallax vector
+// ( near layers glide with the grab, the far sky barely moves ).
 #define COMPOSITE(idx, tex)                                               \
     if (idx < uLayerCount) {                                              \
         float d = uLayerDepth[idx];                                       \
         vec2 off = parallaxOffset(uPan * uParallax, d)                    \
                  + flowOscillation(vUv, uTime, uFlow, uFlowScale)          \
-                     * uFlowStrength * (0.55 + 0.45 * d);                  \
-        vec4 c = texture(tex, clamp(vUv + off / uImageSize,               \
+                     * uFlowStrength * (0.42 + 0.58 * d);                  \
+        vec4 c = texture(tex, clamp(vUv - off / uImageSize,               \
                                     vec2(0.001), vec2(0.999)));            \
         acc = vec4(acc.rgb * (1.0 - c.a) + c.rgb * c.a,                   \
                    max(acc.a, c.a));                                       \
     }
 
 void main() {
-    vec4 acc = texture(uOriginal, clamp(vUv, vec2(0.0), vec2(1.0)));
+    // the original base gets a *per-pixel* depth parallax offset ( the
+    // uDepth texture was previously bound but unused ) - near pixels glide
+    // more than far ones, which is what kills the flat whole-image drag.
+    float dp = texture(uDepth, vUv).r;
+    vec2 baseOff = uPan * uParallax * (0.18 + 0.82 * dp);
+    vec4 acc = texture(uOriginal, clamp(vUv - baseOff / uImageSize,
+                                        vec2(0.0), vec2(1.0)));
     COMPOSITE(0, uLayer0)
     COMPOSITE(1, uLayer1)
     COMPOSITE(2, uLayer2)
