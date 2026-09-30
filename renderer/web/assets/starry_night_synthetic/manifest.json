@@ -1,0 +1,168 @@
+{
+  "scene": "starry_night_synthetic",
+  "title": "Starry Night Synthetic",
+  "width": 608,
+  "height": 760,
+  "generated": "2026-09-30T02:09:57+00:00",
+  "models": {
+    "sam": "sam_vit_b",
+    "depth": "midas_small",
+    "flow": "raft_large"
+  },
+  "original": "original.png",
+  "layers": [
+    {
+      "name": "sky",
+      "file": "layers/sky.png",
+      "paintOrder": 0,
+      "areaFrac": 0.02521,
+      "meanColor": [
+        51,
+        70,
+        109
+      ],
+      "depth": 0.1419
+    },
+    {
+      "name": "mountains",
+      "file": "layers/mountains.png",
+      "paintOrder": 1,
+      "areaFrac": 0.61066,
+      "meanColor": [
+        27,
+        43,
+        88
+      ],
+      "depth": 0.125
+    },
+    {
+      "name": "village",
+      "file": "layers/village.png",
+      "paintOrder": 2,
+      "areaFrac": 0.36636,
+      "meanColor": [
+        26,
+        41,
+        79
+      ],
+      "depth": 0.0832
+    },
+    {
+      "name": "tree",
+      "file": "layers/tree.png",
+      "paintOrder": 3,
+      "areaFrac": 0.0856,
+      "meanColor": [
+        22,
+        33,
+        31
+      ],
+      "depth": 0.8587
+    },
+    {
+      "name": "stars",
+      "file": "layers/stars.png",
+      "paintOrder": 4,
+      "areaFrac": 0.00826,
+      "meanColor": [
+        173,
+        159,
+        102
+      ],
+      "depth": 0.1155
+    },
+    {
+      "name": "moon",
+      "file": "layers/moon.png",
+      "paintOrder": 5,
+      "areaFrac": 0.00757,
+      "meanColor": [
+        188,
+        163,
+        109
+      ],
+      "depth": 0.0308
+    }
+  ],
+  "depth": {
+    "file": "depth.png",
+    "vizFile": "depth_viz.png",
+    "nearIsOne": true,
+    "engine": "midas_small",
+    "stats": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.1747
+    }
+  },
+  "flow": {
+    "file": "flow.png",
+    "vizFile": "flow_viz.png",
+    "scale": 25.5123,
+    "cameraShift": [
+      24.32,
+      11.4
+    ],
+    "engine": "raft_large",
+    "stats": {
+      "maxMag": 27.249,
+      "meanMag": 4.584,
+      "p99Mag": 25.512
+    }
+  },
+  "strokes": {
+    "bin": "strokes.bin",
+    "count": 49272,
+    "strideFloats": 12,
+    "radiusRange": [
+      2.96875,
+      29.6875
+    ],
+    "lengthRange": [
+      3.2327682971954346,
+      31.171886444091797
+    ],
+    "layers": [
+      "sky",
+      "mountains",
+      "village",
+      "tree",
+      "stars",
+      "moon"
+    ]
+  },
+  "palette": {
+    "dominant": [
+      [
+        21,
+        36,
+        77
+      ],
+      [
+        22,
+        42,
+        96
+      ],
+      [
+        22,
+        32,
+        27
+      ],
+      [
+        67,
+        75,
+        97
+      ],
+      [
+        125,
+        115,
+        95
+      ],
+      [
+        207,
+        183,
+        113
+      ]
+    ]
+  }
+}

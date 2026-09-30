@@ -1,0 +1,18 @@
+[
+  {
+    "scene": "starry_night",
+    "title": "Starry Night",
+    "manifest": "starry_night/manifest.json",
+    "thumbnail": "starry_night/original.png",
+    "strokes": 48478,
+    "layers": 5
+  },
+  {
+    "scene": "starry_night_synthetic",
+    "title": "Starry Night Synthetic",
+    "manifest": "starry_night_synthetic/manifest.json",
+    "thumbnail": "starry_night_synthetic/original.png",
+    "strokes": 49272,
+    "layers": 6
+  }
+]
