@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Model checkpoints ( large - use scripts/download_models.py )
+checkpoints/*.pth
+checkpoints/*.part
+
+# Pipeline outputs ( regenerable: python -m inference.run_pipeline )
+outputs/
+renderer/web/assets/
+renderer/web/shaders/
+
+# keep the shipped demo assets if you want the renderer to work out of the box:
+!renderer/web/assets/**/*
+!renderer/web/shaders/**
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
