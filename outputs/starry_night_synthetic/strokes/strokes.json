@@ -1,0 +1,33 @@
+{
+  "count": 49272,
+  "strideFloats": 12,
+  "layers": [
+    "sky",
+    "mountains",
+    "village",
+    "tree",
+    "stars",
+    "moon"
+  ],
+  "segmentsPerLayer": {
+    "sky": 615,
+    "mountains": 26569,
+    "village": 15950,
+    "tree": 3728,
+    "stars": 1209,
+    "moon": 1201
+  },
+  "radiusRange": [
+    2.96875,
+    29.6875
+  ],
+  "lengthRange": [
+    3.2327682971954346,
+    31.171886444091797
+  ],
+  "referenceSide": 768.0,
+  "bin": "strokes/strokes.bin",
+  "json": "strokes/strokes.json",
+  "imageWidth": 608,
+  "imageHeight": 760
+}

@@ -1,0 +1,16 @@
+{
+  "scene": "starry_night_synthetic",
+  "input": "/home/z/my-project/work/VanGogh_PaperLevel_Neural_Preserving_Demo/data/input/starry_night_synthetic.png",
+  "models": {
+    "sam": "sam_vit_b",
+    "depth": "midas_small",
+    "flow": "raft_large"
+  },
+  "stages_seconds": {
+    "depth": 3.14,
+    "export": 0.23,
+    "flow": 24.13,
+    "sam": 83.86,
+    "strokes": 4.81
+  }
+}

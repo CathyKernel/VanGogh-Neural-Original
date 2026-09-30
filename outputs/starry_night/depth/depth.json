@@ -1,0 +1,21 @@
+{
+  "engine": "midas_small",
+  "file": "depth/depth.png",
+  "rawFile": "depth/depth.npy",
+  "smoothFile": "depth/depth_smooth.npy",
+  "vizFile": "depth/depth_viz.png",
+  "bitDepth": 8,
+  "nearIsOne": true,
+  "layerDepth": {
+    "sky": 0.2179,
+    "mountains": 0.5629,
+    "village": 0.7105,
+    "stars": 0.1729,
+    "moon": 0.1913
+  },
+  "stats": {
+    "min": 0.0,
+    "max": 1.0,
+    "mean": 0.3689
+  }
+}

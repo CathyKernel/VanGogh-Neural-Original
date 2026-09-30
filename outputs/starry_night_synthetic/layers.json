@@ -1,0 +1,110 @@
+[
+  {
+    "name": "sky",
+    "paintOrder": 0,
+    "file": "layers/sky.png",
+    "areaFrac": 0.02521,
+    "bbox": [
+      0.0,
+      0.0039,
+      1.0,
+      1.0
+    ],
+    "meanColor": [
+      51,
+      70,
+      109
+    ],
+    "engine": "sam_vit_b"
+  },
+  {
+    "name": "mountains",
+    "paintOrder": 1,
+    "file": "layers/mountains.png",
+    "areaFrac": 0.61066,
+    "bbox": [
+      0.0,
+      0.0,
+      1.0,
+      0.7184
+    ],
+    "meanColor": [
+      27,
+      43,
+      88
+    ],
+    "engine": "sam_vit_b"
+  },
+  {
+    "name": "village",
+    "paintOrder": 2,
+    "file": "layers/village.png",
+    "areaFrac": 0.36636,
+    "bbox": [
+      0.0,
+      0.5474,
+      0.9984,
+      1.0
+    ],
+    "meanColor": [
+      26,
+      41,
+      79
+    ],
+    "engine": "sam_vit_b"
+  },
+  {
+    "name": "tree",
+    "paintOrder": 3,
+    "file": "layers/tree.png",
+    "areaFrac": 0.0856,
+    "bbox": [
+      0.0,
+      0.0395,
+      0.2303,
+      0.8105
+    ],
+    "meanColor": [
+      22,
+      33,
+      31
+    ],
+    "engine": "sam_vit_b"
+  },
+  {
+    "name": "stars",
+    "paintOrder": 4,
+    "file": "layers/stars.png",
+    "areaFrac": 0.00826,
+    "bbox": [
+      0.0724,
+      0.0539,
+      0.9359,
+      0.4145
+    ],
+    "meanColor": [
+      173,
+      159,
+      102
+    ],
+    "engine": "sam_vit_b"
+  },
+  {
+    "name": "moon",
+    "paintOrder": 5,
+    "file": "layers/moon.png",
+    "areaFrac": 0.00757,
+    "bbox": [
+      0.7747,
+      0.0592,
+      0.8997,
+      0.1553
+    ],
+    "meanColor": [
+      188,
+      163,
+      109
+    ],
+    "engine": "sam_vit_b"
+  }
+]
