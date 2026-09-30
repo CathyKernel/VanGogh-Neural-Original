@@ -1,0 +1,20 @@
+# Netlify publish configuration - the WebGL renderer is a fully static site.
+[build]
+publish = "renderer/web"
+
+# GLSL sources, stroke binaries and manifests must never be cached aggressively
+# - they change whenever the pipeline is rerun.
+[[headers]]
+  for = "/shaders/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/assets/*/manifest.json"
+  [headers.values]
+    Cache-Control = "no-store"
