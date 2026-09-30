@@ -1,0 +1,155 @@
+{
+  "model": "MobileSAM (vit_t, TinyViT image encoder)",
+  "prompting": "point prompts (positive=foreground, 0=background), single mask output",
+  "priority": [
+    "moon",
+    "stars",
+    "cypress",
+    "village",
+    "mountains"
+  ],
+  "sky": "complement of all other layers",
+  "source": {
+    "width": 1280,
+    "height": 1014
+  },
+  "prompt_scores": {
+    "moon": 0.852,
+    "cypress": 0.967,
+    "village": 0.729,
+    "mountains": 0.887
+  },
+  "files": [
+    "layer_0_sky.png",
+    "layer_1_moon.png",
+    "layer_2_stars.png",
+    "layer_3_cypress.png",
+    "layer_4_village.png",
+    "layer_5_mountains.png",
+    "layers_preview.png"
+  ],
+  "layers": [
+    {
+      "id": 0,
+      "name": "sky",
+      "file": "layer_0_sky.png",
+      "color_bgr": [
+        90,
+        60,
+        30
+      ],
+      "coverage_pct": 64.8,
+      "centroid": [
+        643.3,
+        382.4
+      ],
+      "mean_color_bgr": [
+        133.9,
+        108.5,
+        88.7
+      ]
+    },
+    {
+      "id": 1,
+      "name": "moon",
+      "file": "layer_1_moon.png",
+      "color_bgr": [
+        60,
+        220,
+        255
+      ],
+      "coverage_pct": 1.1,
+      "centroid": [
+        1159.9,
+        180.8
+      ],
+      "mean_color_bgr": [
+        74.4,
+        171.8,
+        185.7
+      ]
+    },
+    {
+      "id": 2,
+      "name": "stars",
+      "file": "layer_2_stars.png",
+      "color_bgr": [
+        80,
+        200,
+        255
+      ],
+      "coverage_pct": 2.14,
+      "centroid": [
+        491.3,
+        215.3
+      ],
+      "mean_color_bgr": [
+        110.8,
+        139.5,
+        129.1
+      ]
+    },
+    {
+      "id": 3,
+      "name": "cypress",
+      "file": "layer_3_cypress.png",
+      "color_bgr": [
+        70,
+        90,
+        40
+      ],
+      "coverage_pct": 12.4,
+      "centroid": [
+        325.5,
+        745.1
+      ],
+      "mean_color_bgr": [
+        32.7,
+        35.9,
+        32.6
+      ]
+    },
+    {
+      "id": 4,
+      "name": "village",
+      "file": "layer_4_village.png",
+      "color_bgr": [
+        160,
+        90,
+        60
+      ],
+      "coverage_pct": 7.42,
+      "centroid": [
+        796.0,
+        899.5
+      ],
+      "mean_color_bgr": [
+        67.5,
+        57.9,
+        49.2
+      ]
+    },
+    {
+      "id": 5,
+      "name": "mountains",
+      "file": "layer_5_mountains.png",
+      "color_bgr": [
+        150,
+        110,
+        70
+      ],
+      "coverage_pct": 12.14,
+      "centroid": [
+        823.0,
+        765.9
+      ],
+      "mean_color_bgr": [
+        96.4,
+        70.0,
+        55.7
+      ]
+    }
+  ],
+  "total_coverage_pct": 100.0,
+  "seconds": 4.3
+}
