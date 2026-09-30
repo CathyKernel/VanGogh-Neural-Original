@@ -1,4 +1,4 @@
-# Van Gogh Paper-Level Neural Preserving Demo
+# Van Gogh Starry Night Demo 1
 
 **SAM → depth → RAFT flow → GLSL**: a complete computer-vision pipeline that turns
 *The Starry Night* into a living painting while **preserving Van Gogh's original
